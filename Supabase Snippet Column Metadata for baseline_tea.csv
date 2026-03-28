@@ -1,0 +1,49 @@
+column_name,data_type
+id,uuid
+paciente_id,character varying
+data_triagem,date
+nome_paciente,character varying
+data_nascimento,date
+idade_paciente,integer
+cuidador_nome,character varying
+cuidador_parentesco,character varying
+cuidador_profissao,character varying
+residencia,text
+queixa_principal,text
+idade_diagnostico_tea,integer
+nivel_suporte,integer
+profissional_diagnostico,character varying
+outros_diagnosticos,text
+historico_gestacao,text
+tipo_parto,character varying
+idade_gestacional,integer
+condicoes_nascer,text
+marco_cabeca,text
+marco_locomocao,text
+desenvolvimento_fala,text
+controle_esfincteriano,text
+meltdowns_frequencia,text
+meltdowns_duracao,text
+meltdowns_gatilhos,text
+agressividade_autoagressao,text
+estereotipias,text
+hipersensibilidade,text
+rigidez_cognitiva,text
+contato_visual,text
+interacao_social,text
+padrao_sono,text
+alimentacao_seletividade,text
+convulsoes_eeg,text
+alergias,text
+imunidade,text
+medicacoes_atuais,text
+medicacoes_previas,text
+terapias_atuais,text
+objetivo_terapia_canabinoide,text
+experiencia_cannabis_previa,text
+relatorios_anexados,boolean
+consentimento_assinado,boolean
+assinatura_responsavel,character varying
+data_consentimento,date
+data_criacao,timestamp with time zone
+data_atualizacao,timestamp with time zone

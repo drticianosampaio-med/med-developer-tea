@@ -1,0 +1,49 @@
+column_name,data_type,is_nullable
+id,bigint,NO
+paciente_id,character varying,NO
+nome_paciente,character varying,NO
+cpf_paciente,character varying,NO
+data_nascimento,date,NO
+cuidador_nome,character varying,YES
+cuidador_parentesco,character varying,YES
+cuidador_profissao,character varying,YES
+residencia,text,YES
+queixa_principal,text,YES
+idade_diagnostico_tea,integer,YES
+nivel_suporte,integer,YES
+profissional_diagnostico,character varying,YES
+outros_diagnosticos,text,YES
+historico_gestacao,text,YES
+tipo_parto,character varying,YES
+idade_gestacional,integer,YES
+condicoes_nascer,text,YES
+marco_cabeca,character varying,YES
+marco_locomocao,character varying,YES
+desenvolvimento_fala,character varying,YES
+idade_primeiras_palavras,integer,YES
+controle_esfincteriano,character varying,YES
+meltdowns_frequencia,character varying,YES
+meltdowns_duracao,character varying,YES
+meltdowns_gatilhos,text,YES
+agressividade_autoagressao,text,YES
+estereotipias,text,YES
+hipersensibilidade,text,YES
+rigidez_cognitiva,text,YES
+contato_visual,text,YES
+padrao_sono,text,YES
+alimentacao_seletividade,character varying,YES
+funcao_intestinal,text,YES
+convulsoes_eeg,text,YES
+alergias,text,YES
+imunidade,character varying,YES
+medicacoes_atuais,text,YES
+medicacoes_previas,text,YES
+terapias_atuais,text,YES
+objetivo_terapia_canabinoide,text,YES
+experiencia_cannabis_previa,character varying,YES
+consentimento_assinado,boolean,YES
+assinatura_responsavel,character varying,YES
+data_consentimento,date,YES
+data_triagem,date,YES
+created_at,timestamp without time zone,YES
+updated_at,timestamp without time zone,YES
