@@ -157,10 +157,16 @@ def testar_conexao_supabase() -> Tuple[bool, str]:
         cliente = obter_cliente_supabase()
         if not cliente:
             return False, "Falha ao criar cliente Supabase"
+        
+        # Tenta fazer uma query simples
         resposta = cliente.table("baseline_tea").select("id").limit(1).execute()
-        if resposta.status_code == 200 or resposta.data is not None:
+        
+        # Verifica se a resposta contém dados (sucesso)
+        # APIResponse do Supabase v2.10.0 não tem status_code, apenas data
+        if resposta.data is not None:
             return True, "✅ Conexão com Supabase funcionando"
         else:
-            return False, f"Erro na conexão: {resposta.status_code}"
+            # Se data é None, significa que não conseguiu conectar
+            return False, "Erro na conexão com Supabase"
     except Exception as e:
         return False, f"Erro ao testar conexão: {str(e)}"
