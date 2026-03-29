@@ -2,7 +2,7 @@
 # app.py — VERSÃO CORRIGIDA
 # Interface Principal do Sistema de Triagem Canabinoide TEA
 # Data: 29 de março de 2026
-# Correções: Range de datas (2008-2026) + Localização português
+# Correções: Range de datas REMOVIDO + Localização português
 # 
 
 import streamlit as st
@@ -245,9 +245,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         data_nascimento = st.date_input(
             "Data de Nascimento *", 
             key="data_nascimento", 
-            format="DD/MM/YYYY",
-            min_value=date(2008, 1, 1),  # ✅ CORRIGIDO: Aceita até 18 anos atrás
-            max_value=date.today()        # Até hoje
+            format="DD/MM/YYYY"
         )
         if data_nascimento:
             idade = calcular_idade(data_nascimento)
@@ -270,7 +268,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     col5, col6 = st.columns(2)
     with col5:
         idade_diagnostico_tea = st.number_input("Idade do diagnóstico de TEA (anos) *",
-            min_value=0, max_value=18, key="idade_diagnostico_tea")
+            min_value=0, max_value=100, key="idade_diagnostico_tea")
         nivel_suporte = st.selectbox("Nível de Suporte *",
             options=NIVEL_SUPORTE_OPTIONS, key="nivel_suporte")
     with col6:
@@ -307,7 +305,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         desenvolvimento_fala = st.selectbox("Desenvolvimento da fala",
             options=DESENVOLVIMENTO_FALA_OPTIONS, key="desenvolvimento_fala")
         idade_primeiras_palavras = st.number_input("Idade ao falar as primeiras palavras (meses)",
-            min_value=0, max_value=60, key="idade_primeiras_palavras")
+            min_value=0, max_value=600, key="idade_primeiras_palavras")
     with col12:
         controle_esfincteriano = st.text_input("Controle esfincteriano", key="controle_esfincteriano")
     st.divider()
@@ -485,11 +483,6 @@ if botao_enviar:
     sucesso_id, msg_id, paciente_id = gerar_id_paciente(cpf_paciente, nome_paciente)
     if not sucesso_id:
         st.error(f"❌ Erro ao gerar ID: {msg_id}")
-        st.stop()
-
-    idade_valida, msg_idade = validar_idade_paciente(data_nascimento)
-    if not idade_valida:
-        st.error(f"❌ {msg_idade}")
         st.stop()
 
     if not consentimento_assinado or not assinatura_responsavel:
