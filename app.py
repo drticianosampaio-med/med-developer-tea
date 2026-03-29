@@ -2,7 +2,7 @@
 # app.py — VERSÃO CORRIGIDA
 # Interface Principal do Sistema de Triagem Canabinoide TEA
 # Data: 29 de março de 2026
-# Correções: Trava de data REMOVIDA + Localização português
+# Correções: Range de datas expandido no st.date_input + Localização português
 # 
 
 import streamlit as st
@@ -244,7 +244,9 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         data_nascimento = st.date_input(
             "Data de Nascimento *", 
             key="data_nascimento", 
-            format="DD/MM/YYYY"
+            format="DD/MM/YYYY",
+            min_value=date(1900, 1, 1),  # ✅ CORRIGIDO: Aceita desde 1900
+            max_value=date.today()        # ✅ CORRIGIDO: Até hoje
         )
         if data_nascimento:
             idade = calcular_idade(data_nascimento)
