@@ -2,7 +2,7 @@
 # app.py — VERSÃO CORRIGIDA
 # Interface Principal do Sistema de Triagem Canabinoide TEA
 # Data: 29 de março de 2026
-# Correções: Range de datas REMOVIDO + Localização português
+# Correções: Trava de data REMOVIDA + Localização português
 # 
 
 import streamlit as st
@@ -36,7 +36,6 @@ from utils.validation import (
     validar_cpf,
     gerar_id_paciente,
     calcular_idade,
-    validar_idade_paciente,
     validar_arquivo_pdf
 )
 
@@ -483,6 +482,11 @@ if botao_enviar:
     sucesso_id, msg_id, paciente_id = gerar_id_paciente(cpf_paciente, nome_paciente)
     if not sucesso_id:
         st.error(f"❌ Erro ao gerar ID: {msg_id}")
+        st.stop()
+
+    # ✅ NOVA VALIDAÇÃO: Apenas verifica se a data não é futura
+    if data_nascimento > date.today():
+        st.error("❌ Data de nascimento não pode ser no futuro")
         st.stop()
 
     if not consentimento_assinado or not assinatura_responsavel:
