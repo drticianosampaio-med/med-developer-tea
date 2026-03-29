@@ -6,3 +6,4 @@ requests==2.32.3
 pandas==2.2.3
 plotly==5.24.1
 pdfplumber==0.10.3
+gunicorn==21.2.0
