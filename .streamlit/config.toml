@@ -1,0 +1,21 @@
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = true
+
+[logger]
+level = "info"
+
+[theme]
+primaryColor = "#2D5A3D"
+backgroundColor = "#0D2818"
+secondaryBackgroundColor = "#1a3a2e"
+textColor = "#E8E8E8"
+font = "sans serif"
+
+[page]
+title = "🧠 Triagem TEA — Terapia Canabinoide"
+favicon = "🧠"
+layout = "wide"
+initialSidebarState = "expanded"
