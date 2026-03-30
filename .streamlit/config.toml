@@ -1,5 +1,8 @@
-[browser]
-gatherUsageStats = false
+# 
+# .streamlit/config.toml
+# Configurações Globais do Streamlit
+# Data: 30 de março de 2026
+# 
 
 [client]
 showErrorDetails = true
@@ -14,8 +17,9 @@ secondaryBackgroundColor = "#1a3a2e"
 textColor = "#E8E8E8"
 font = "sans serif"
 
-[page]
-title = "🧠 Triagem TEA — Terapia Canabinoide"
-favicon = "🧠"
-layout = "wide"
-initialSidebarState = "expanded"
+[server]
+enableCORS = true
+enableXsrfProtection = true
+
+[runner]
+fastReruns = true

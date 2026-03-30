@@ -1,14 +1,17 @@
 # 
-# app.py — VERSÃO CORRIGIDA
+# app.py — VERSÃO CORRIGIDA E ATUALIZADA (FASE 1)
 # Interface Principal do Sistema de Triagem Canabinoide TEA
-# Data: 29 de março de 2026
-# Correções: Range de datas expandido no st.date_input + Localização português
+# Data: 30 de março de 2026
+# Correções: st.set_page_config, Profissional Diagnóstico (multiselect), Tipo Parto,
+#            Idades em meses, Gatilhos (multiselect), Estereotipias (multiselect),
+#            Hipersensibilidade (slider), Rigidez Cognitiva (slider).
 # 
 
 import streamlit as st
 from datetime import datetime, date
 import os
 import locale
+from typing import List
 
 # Importações de configuração
 from config.constants import (
@@ -28,6 +31,10 @@ from config.constants import (
     FUNCAO_INTESTINAL_OPTIONS,
     IMUNIDADE_OPTIONS,
     EXPERIENCIA_CANNABIS_OPTIONS,
+    PROFISSIONAIS_DIAGNOSTICO,
+    TIPO_PARTO_OPTIONS,
+    GATILHOS_MELTDOWNS,
+    ESTEREOTIPIAS_OPTIONS,
     MENSAGENS
 )
 from config.security import validar_seguranca_app
@@ -36,14 +43,28 @@ from utils.validation import (
     validar_cpf,
     gerar_id_paciente,
     calcular_idade,
-    validar_arquivo_pdf
+    validar_idade_paciente,
+    validar_arquivo_pdf,
+    validar_profissional_diagnostico,
+    validar_gatilhos,
+    validar_estereotipias
+)
+
+# 
+# CONFIGURAÇÃO DA PÁGINA — CRÍTICO: APENAS UMA CHAMADA E NO TOPO
+# 
+
+st.set_page_config(
+    page_title=PAGE_CONFIG["page_title"],
+    page_icon=PAGE_CONFIG["page_icon"],
+    layout=PAGE_CONFIG["layout"],
+    initial_sidebar_state=PAGE_CONFIG["initial_sidebar_state"]
 )
 
 # 
 # CONFIGURAÇÃO DE LOCALIZAÇÃO — FORMATO BRASILEIRO
 # 
 
-# Forçar locale português brasileiro
 try:
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 except:
@@ -52,7 +73,6 @@ except:
     except:
         pass
 
-# Dicionário de meses em português (fallback)
 MESES_PT = {
     'January': 'Janeiro',
     'February': 'Fevereiro',
@@ -78,7 +98,7 @@ def formatar_data_br(data_obj):
     return None
 
 def converter_data_iso(data_obj):
-    """Converte date object para formato ISO (YYYY-MM-DD) para banco de dados"""
+    """Converte date object para formato ISO"""
     if data_obj:
         return data_obj.isoformat()
     return None
@@ -100,17 +120,6 @@ CORES = {
     'borda': '#3D5A3D',
     'caixa_texto': '#1a3a2e',
 }
-
-# 
-# CONFIGURAÇÃO DA PÁGINA
-# 
-
-st.set_page_config(
-    page_title=PAGE_CONFIG["page_title"],
-    page_icon=PAGE_CONFIG["page_icon"],
-    layout=PAGE_CONFIG["layout"],
-    initial_sidebar_state=PAGE_CONFIG["initial_sidebar_state"]
-)
 
 # 
 # CSS MINIMALISTA
@@ -244,9 +253,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         data_nascimento = st.date_input(
             "Data de Nascimento *", 
             key="data_nascimento", 
-            format="DD/MM/YYYY",
-            min_value=date(1900, 1, 1),  # ✅ CORRIGIDO: Aceita desde 1900
-            max_value=date.today()        # ✅ CORRIGIDO: Até hoje
+            format="DD/MM/YYYY"
         )
         if data_nascimento:
             idade = calcular_idade(data_nascimento)
@@ -268,13 +275,25 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         key="queixa_principal", height=100)
     col5, col6 = st.columns(2)
     with col5:
-        idade_diagnostico_tea = st.number_input("Idade do diagnóstico de TEA (anos) *",
-            min_value=0, max_value=100, key="idade_diagnostico_tea")
+        idade_diagnostico_tea = st.number_input(
+            "Idade do diagnóstico de TEA (meses) *",
+            min_value=0, max_value=1200, key="idade_diagnostico_tea"
+        )
         nivel_suporte = st.selectbox("Nível de Suporte *",
             options=NIVEL_SUPORTE_OPTIONS, key="nivel_suporte")
     with col6:
-        profissional_diagnostico_final = st.text_input("Profissional que fez o diagnóstico",
-            key="profissional_diagnostico")
+        profissionais_selecionados = st.multiselect(
+            "Profissional(is) que fez(fizeram) o diagnóstico *",
+            options=PROFISSIONAIS_DIAGNOSTICO,
+            key="profissional_diagnostico_multiselect"
+        )
+        outro_profissional = ""
+        if "Outro profissional legalmente habilitado" in profissionais_selecionados:
+            outro_profissional = st.text_input("Especifique o outro profissional", key="outro_profissional_diagnostico")
+        
+        tipo_parto = st.selectbox("Tipo de Parto",
+            options=TIPO_PARTO_OPTIONS, key="tipo_parto")
+
         outros_diagnosticos = st.text_area("Outros diagnósticos?",
             key="outros_diagnosticos", height=100)
     st.divider()
@@ -285,9 +304,6 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     with col7:
         historico_gestacao = st.text_area("Histórico da Gestação",
             key="historico_gestacao", height=100)
-        tipo_parto = st.selectbox("Tipo de Parto",
-            options=["Vaginal", "Cesariana", "Fórceps", "Não Informado"],
-            key="tipo_parto")
     with col8:
         idade_gestacional = st.text_input("Idade Gestacional (semanas)",
             key="idade_gestacional")
@@ -299,16 +315,18 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     st.header("4️⃣ Desenvolvimento Neuropsicomotor")
     col9, col10, col11, col12 = st.columns(4)
     with col9:
-        marco_cabeca = st.text_input("Controle de Cabeça", key="marco_cabeca")
+        marco_cabeca = st.text_input("Controle de Cabeça (idade em meses)", key="marco_cabeca")
     with col10:
-        marco_locomocao = st.text_input("Sentou e andou", key="marco_locomocao")
+        marco_locomocao = st.text_input("Sentou e andou (idade em meses)", key="marco_locomocao")
     with col11:
         desenvolvimento_fala = st.selectbox("Desenvolvimento da fala",
             options=DESENVOLVIMENTO_FALA_OPTIONS, key="desenvolvimento_fala")
-        idade_primeiras_palavras = st.number_input("Idade ao falar as primeiras palavras (meses)",
-            min_value=0, max_value=600, key="idade_primeiras_palavras")
+        idade_primeiras_palavras = st.number_input(
+            "Idade ao falar as primeiras palavras (meses)",
+            min_value=0, max_value=600, key="idade_primeiras_palavras"
+        )
     with col12:
-        controle_esfincteriano = st.text_input("Controle esfincteriano", key="controle_esfincteriano")
+        controle_esfincteriano = st.text_input("Controle esfincteriano (idade em meses)", key="controle_esfincteriano")
     st.divider()
 
     # SEÇÃO 5: PERFIL SENSORIAL
@@ -319,19 +337,40 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
             options=FREQUENCIA_MELTDOWNS_OPTIONS, key="meltdowns_frequencia")
         meltdowns_duracao = st.selectbox("Crises/Meltdowns - Duração",
             options=DURACAO_MELTDOWNS_OPTIONS, key="meltdowns_duracao")
-        meltdowns_gatilhos = st.text_area("Gatilhos mais comuns",
-            key="meltdowns_gatilhos", height=100)
+        gatilhos_selecionados = st.multiselect(
+            "Gatilhos mais comuns *",
+            options=GATILHOS_MELTDOWNS,
+            key="meltdowns_gatilhos_multiselect"
+        )
+        outros_gatilhos = ""
+        if "Outros" in gatilhos_selecionados:
+            outros_gatilhos = st.text_input("Especifique outros gatilhos", key="outros_gatilhos_meltdowns")
     with col14:
         agressividade_autoagressao = st.text_area("Agressividade / Autoagressão",
             key="agressividade_autoagressao", height=100)
-        estereotipias = st.text_area("Estereotipias (Stimming)",
-            key="estereotipias", height=100)
-    hipersensibilidade = st.text_area("Hipersensibilidade / Hipossensibilidade",
-        key="hipersensibilidade", height=100)
+        estereotipias_selecionadas = st.multiselect(
+            "Estereotipias (Stimming) *",
+            options=ESTEREOTIPIAS_OPTIONS,
+            key="estereotipias_multiselect"
+        )
+        outras_estereotipias = ""
+        if "Outros" in estereotipias_selecionadas:
+            outras_estereotipias = st.text_input("Especifique outras estereotipias", key="outras_estereotipias_stimming")
+    
+    hipersensibilidade_hipossensibilidade = st.slider(
+        "Hipersensibilidade / Hipossensibilidade",
+        min_value=0, max_value=4, value=2, step=1,
+        format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
+        key="hipersensibilidade_hipossensibilidade_slider"
+    )
     col15, col16 = st.columns(2)
     with col15:
-        rigidez_cognitiva = st.text_area("Rigidez Cognitiva",
-            key="rigidez_cognitiva", height=100)
+        rigidez_cognitiva_grau = st.slider(
+            "Rigidez Cognitiva",
+            min_value=0, max_value=4, value=2, step=1,
+            format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
+            key="rigidez_cognitiva_slider"
+        )
     with col16:
         contato_visual = st.text_area("Contato Visual e Interação Social",
             key="contato_visual", height=100)
@@ -429,6 +468,18 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
 # 
 
 if botao_enviar:
+    profissional_diagnostico_final_processado = profissionais_selecionados
+    if outro_profissional:
+        profissional_diagnostico_final_processado = [p for p in profissionais_selecionados if p != "Outro profissional legalmente habilitado"] + [outro_profissional]
+
+    meltdowns_gatilhos_final_processado = gatilhos_selecionados
+    if outros_gatilhos:
+        meltdowns_gatilhos_final_processado = [g for g in gatilhos_selecionados if g != "Outros"] + [outros_gatilhos]
+
+    estereotipias_final_processado = estereotipias_selecionadas
+    if outras_estereotipias:
+        estereotipias_final_processado = [e for e in estereotipias_selecionadas if e != "Outros"] + [outras_estereotipias]
+
     dados_formulario = {
         "nome_paciente": nome_paciente,
         "cpf_paciente": cpf_paciente,
@@ -440,7 +491,7 @@ if botao_enviar:
         "queixa_principal": queixa_principal,
         "idade_diagnostico_tea": idade_diagnostico_tea,
         "nivel_suporte": nivel_suporte,
-        "profissional_diagnostico": profissional_diagnostico_final,
+        "profissional_diagnostico": profissional_diagnostico_final_processado,
         "outros_diagnosticos": outros_diagnosticos,
         "historico_gestacao": historico_gestacao,
         "tipo_parto": tipo_parto,
@@ -453,11 +504,11 @@ if botao_enviar:
         "controle_esfincteriano": controle_esfincteriano,
         "meltdowns_frequencia": meltdowns_frequencia,
         "meltdowns_duracao": meltdowns_duracao,
-        "meltdowns_gatilhos": meltdowns_gatilhos,
+        "meltdowns_gatilhos": meltdowns_gatilhos_final_processado,
         "agressividade_autoagressao": agressividade_autoagressao,
-        "estereotipias": estereotipias,
-        "hipersensibilidade": hipersensibilidade,
-        "rigidez_cognitiva": rigidez_cognitiva,
+        "estereotipias": estereotipias_final_processado,
+        "hipersensibilidade": hipersensibilidade_hipossensibilidade,
+        "rigidez_cognitiva": rigidez_cognitiva_grau,
         "contato_visual": contato_visual,
         "padrao_sono": ", ".join(padrao_sono),
         "alimentacao_seletividade": alimentacao_seletividade,
@@ -486,9 +537,24 @@ if botao_enviar:
         st.error(f"❌ Erro ao gerar ID: {msg_id}")
         st.stop()
 
-    # ✅ NOVA VALIDAÇÃO: Apenas verifica se a data não é futura
-    if data_nascimento > date.today():
-        st.error("❌ Data de nascimento não pode ser no futuro")
+    idade_valida, msg_idade = validar_idade_paciente(data_nascimento)
+    if not idade_valida:
+        st.error(f"❌ {msg_idade}")
+        st.stop()
+
+    prof_valido, msg_prof = validar_profissional_diagnostico(profissionais_selecionados)
+    if not prof_valido:
+        st.error(f"❌ {msg_prof}")
+        st.stop()
+    
+    gatilhos_valido, msg_gatilhos = validar_gatilhos(gatilhos_selecionados)
+    if not gatilhos_valido:
+        st.error(f"❌ {msg_gatilhos}")
+        st.stop()
+
+    estereotipias_valido, msg_estereotipias = validar_estereotipias(estereotipias_selecionadas)
+    if not estereotipias_valido:
+        st.error(f"❌ {msg_estereotipias}")
         st.stop()
 
     if not consentimento_assinado or not assinatura_responsavel:
