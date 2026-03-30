@@ -1,59 +1,111 @@
+# 
+# utils/validation.py
+# Funções de Validação
+# Sistema de Triagem Canabinoide TEA
+# Data: 30 de março de 2026
+# 
+
+from datetime import date, datetime
+from typing import Tuple, List
 import re
-from datetime import date
 
-def validar_cpf(cpf):
-    """Valida um número de CPF"""
+# 
+# VALIDAÇÃO DE CPF
+# 
+
+def validar_cpf(cpf: str) -> Tuple[bool, str]:
+    """Valida CPF brasileiro"""
+    if not cpf:
+        return False, "CPF é obrigatório"
+    
     cpf = re.sub(r'\D', '', cpf)
-    if not cpf or len(cpf) != 11:
-        return False, "CPF deve conter 11 dígitos."
-    if len(set(cpf)) == 1:
-        return False, "CPF inválido: todos os dígitos são iguais."
     
-    soma = 0
-    for i in range(9):
-        soma += int(cpf[i]) * (10 - i)
-    resto = 11 - (soma % 11)
-    digito1 = 0 if resto > 9 else resto
+    if len(cpf) != 11:
+        return False, "CPF deve ter 11 dígitos"
+    
+    if cpf == cpf[0] * 11:
+        return False, "CPF inválido"
+    
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = soma % 11
+    digito1 = 0 if resto < 2 else 11 - resto
+    
     if int(cpf[9]) != digito1:
-        return False, "CPF inválido: primeiro dígito verificador incorreto."
+        return False, "CPF inválido"
     
-    soma = 0
-    for i in range(10):
-        soma += int(cpf[i]) * (11 - i)
-    resto = 11 - (soma % 11)
-    digito2 = 0 if resto > 9 else resto
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = soma % 11
+    digito2 = 0 if resto < 2 else 11 - resto
+    
     if int(cpf[10]) != digito2:
-        return False, "CPF inválido: segundo dígito verificador incorreto."
+        return False, "CPF inválido"
     
-    return True, "CPF válido."
+    return True, "CPF válido"
 
-def gerar_id_paciente(cpf, nome):
-    """Gera ID pseudo-anonimizado: INICIAIS + ÚLTIMOS 3 DÍGITOS CPF"""
-    if not cpf or not nome:
-        return False, "CPF e Nome são obrigatórios.", None
-    
-    cpf_numerico = re.sub(r'\D', '', cpf)
-    if len(cpf_numerico) < 3:
-        return False, "CPF deve ter pelo menos 3 dígitos.", None
-    
-    ultimos_3_cpf = cpf_numerico[-3:]
-    partes_nome = nome.upper().split()
-    
-    if len(partes_nome) >= 2:
-        iniciais = partes_nome[0][0] + partes_nome[-1][0]
-    elif len(partes_nome) == 1:
-        iniciais = partes_nome[0][0]
-    else:
-        iniciais = "XX"
-    
-    paciente_id = f"{iniciais}{ultimos_3_cpf}"
-    return True, "ID do paciente gerado com sucesso.", paciente_id
+# 
+# VALIDAÇÃO DE EMAIL
+# 
 
-def calcular_idade(data_nascimento):
-    """Calcula idade com precisão, considerando mês e dia"""
-    if data_nascimento is None:
-        return 0
-    
+def validar_email(email: str) -> bool:
+    """Valida formato de email"""
+    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(padrao, email) is not None
+
+# 
+# VALIDAÇÃO DE TELEFONE
+# 
+
+def validar_telefone(telefone: str) -> bool:
+    """Valida telefone brasileiro"""
+    telefone = re.sub(r'\D', '', telefone)
+    return len(telefone) == 11 and telefone[0] in ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# 
+# VALIDAÇÃO DE CEP
+# 
+
+def validar_cep(cep: str) -> bool:
+    """Valida CEP brasileiro"""
+    cep = re.sub(r'\D', '', cep)
+    return len(cep) == 8
+
+# 
+# VALIDAÇÃO DE CRM
+# 
+
+def validar_crm(crm: str) -> bool:
+    """Valida CRM"""
+    crm = re.sub(r'\D', '', crm)
+    return 4 <= len(crm) <= 6
+
+# 
+# GERAR ID DO PACIENTE
+# 
+
+def gerar_id_paciente(cpf: str, nome: str) -> Tuple[bool, str, str]:
+    """Gera ID pseudo-anonimizado (INICIAIS + ÚLTIMOS 3 DÍGITOS CPF)"""
+    try:
+        cpf_limpo = re.sub(r'\D', '', cpf)
+        ultimos_3 = cpf_limpo[-3:]
+        
+        palavras = nome.strip().split()
+        iniciais = ''.join([p[0].upper() for p in palavras if p])[:3]
+        
+        paciente_id = f"{iniciais}{ultimos_3}"
+        
+        if len(paciente_id) < 4:
+            return False, "Nome ou CPF insuficiente para gerar ID", None
+        
+        return True, "ID gerado com sucesso", paciente_id
+    except Exception as e:
+        return False, f"Erro ao gerar ID: {str(e)}", None
+
+# 
+# CALCULAR IDADE
+# 
+
+def calcular_idade(data_nascimento: date) -> int:
+    """Calcula idade em anos"""
     hoje = date.today()
     idade = hoje.year - data_nascimento.year
     
@@ -62,30 +114,66 @@ def calcular_idade(data_nascimento):
     
     return idade
 
-def validar_idade_paciente(data_nascimento):
-    """Valida se a idade do paciente é apropriada (até 18 anos)"""
+# 
+# VALIDAÇÃO DE ARQUIVO PDF
+# 
+
+def validar_arquivo_pdf(arquivo_bytes: bytes, arquivo_nome: str, max_size_mb: int = 10) -> Tuple[bool, str]:
+    """Valida arquivo PDF"""
+    tamanho_mb = len(arquivo_bytes) / (1024 * 1024)
+    if tamanho_mb > max_size_mb:
+        return False, f"Arquivo muito grande ({tamanho_mb:.2f}MB). Máximo: {max_size_mb}MB"
+    
+    if not arquivo_nome.lower().endswith('.pdf'):
+        return False, "Apenas arquivos PDF são permitidos"
+    
+    if not arquivo_bytes.startswith(b'%PDF'):
+        return False, "Arquivo não é um PDF válido"
+    
+    return True, "Arquivo PDF válido"
+
+# 
+# VALIDAÇÃO DE IDADE PACIENTE
+# 
+
+def validar_idade_paciente(data_nascimento: date) -> Tuple[bool, str]:
+    """Valida se a data de nascimento é válida"""
     if data_nascimento is None:
-        return False, "Data de nascimento é obrigatória."
+        return False, "Data de nascimento é obrigatória"
     
     idade = calcular_idade(data_nascimento)
     
     if idade < 0:
-        return False, "Data de nascimento futura não é permitida."
-    elif idade > 18:
-        return False, f"O paciente tem {idade} anos. Este formulário é para pacientes até 18 anos."
+        return False, "Data de nascimento futura não é permitida"
     
-    return True, "Idade do paciente validada."
+    return True, "Data de nascimento validada"
 
-def validar_arquivo_pdf(arquivo_bytes, nome_arquivo, max_size_mb=10):
-    """Valida se o arquivo é um PDF e não excede o tamanho máximo"""
-    if not arquivo_bytes:
-        return False, "Nenhum arquivo foi carregado."
-    
-    if not nome_arquivo.lower().endswith('.pdf'):
-        return False, "O arquivo deve ser no formato PDF."
-    
-    tamanho_mb = len(arquivo_bytes) / (1024 * 1024)
-    if tamanho_mb > max_size_mb:
-        return False, f"O arquivo excede {max_size_mb}MB. Tamanho: {tamanho_mb:.2f}MB."
-    
-    return True, "Arquivo PDF válido."
+# 
+# VALIDAÇÃO DE PROFISSIONAL DIAGNÓSTICO
+# 
+
+def validar_profissional_diagnostico(profissionais: List[str]) -> Tuple[bool, str]:
+    """Valida que pelo menos um profissional foi selecionado"""
+    if not profissionais or len(profissionais) == 0:
+        return False, "Selecione pelo menos um profissional que fez o diagnóstico."
+    return True, "Profissional validado."
+
+# 
+# VALIDAÇÃO DE GATILHOS
+# 
+
+def validar_gatilhos(gatilhos: List[str]) -> Tuple[bool, str]:
+    """Valida que pelo menos um gatilho foi selecionado"""
+    if not gatilhos or len(gatilhos) == 0:
+        return False, "Selecione pelo menos um gatilho de meltdowns."
+    return True, "Gatilhos validados."
+
+# 
+# VALIDAÇÃO DE ESTEREOTIPIAS
+# 
+
+def validar_estereotipias(estereotipias: List[str]) -> Tuple[bool, str]:
+    """Valida que pelo menos uma estereotipia foi selecionada"""
+    if not estereotipias or len(estereotipias) == 0:
+        return False, "Selecione pelo menos uma estereotipia."
+    return True, "Estereotipias validadas."
