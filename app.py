@@ -1,10 +1,9 @@
 # 
-# app.py — VERSÃO CORRIGIDA E ATUALIZADA (FASE 1)
+# app.py — VERSÃO CORRIGIDA (FASE 1)
 # Interface Principal do Sistema de Triagem Canabinoide TEA
 # Data: 30 de março de 2026
-# Correções: st.set_page_config, Profissional Diagnóstico (multiselect), Tipo Parto,
-#            Idades em meses, Gatilhos (multiselect), Estereotipias (multiselect),
-#            Hipersensibilidade (slider), Rigidez Cognitiva (slider).
+# Correções: Remoção de sliders para Hipersensibilidade e Rigidez Cognitiva,
+#            restaurando campos de texto originais.
 # 
 
 import streamlit as st
@@ -329,7 +328,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         controle_esfincteriano = st.text_input("Controle esfincteriano (idade em meses)", key="controle_esfincteriano")
     st.divider()
 
-    # SEÇÃO 5: PERFIL SENSORIAL
+    # SEÇÃO 5: PERFIL SENSORIAL E COMPORTAMENTAL — CORRIGIDO (SEM SLIDERS)
     st.header("5️⃣ Perfil Sensorial e Comportamental")
     col13, col14 = st.columns(2)
     with col13:
@@ -357,20 +356,13 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         if "Outros" in estereotipias_selecionadas:
             outras_estereotipias = st.text_input("Especifique outras estereotipias", key="outras_estereotipias_stimming")
     
-    hipersensibilidade_hipossensibilidade = st.slider(
-        "Hipersensibilidade / Hipossensibilidade",
-        min_value=0, max_value=4, value=2, step=1,
-        format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
-        key="hipersensibilidade_hipossensibilidade_slider"
-    )
+    # CAMPOS DE TEXTO RESTAURADOS
+    hipersensibilidade = st.text_area("Hipersensibilidade / Hipossensibilidade",
+        key="hipersensibilidade", height=100)
     col15, col16 = st.columns(2)
     with col15:
-        rigidez_cognitiva_grau = st.slider(
-            "Rigidez Cognitiva",
-            min_value=0, max_value=4, value=2, step=1,
-            format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
-            key="rigidez_cognitiva_slider"
-        )
+        rigidez_cognitiva = st.text_area("Rigidez Cognitiva",
+            key="rigidez_cognitiva", height=100)
     with col16:
         contato_visual = st.text_area("Contato Visual e Interação Social",
             key="contato_visual", height=100)
@@ -507,8 +499,8 @@ if botao_enviar:
         "meltdowns_gatilhos": meltdowns_gatilhos_final_processado,
         "agressividade_autoagressao": agressividade_autoagressao,
         "estereotipias": estereotipias_final_processado,
-        "hipersensibilidade": hipersensibilidade_hipossensibilidade,
-        "rigidez_cognitiva": rigidez_cognitiva_grau,
+        "hipersensibilidade": hipersensibilidade,
+        "rigidez_cognitiva": rigidez_cognitiva,
         "contato_visual": contato_visual,
         "padrao_sono": ", ".join(padrao_sono),
         "alimentacao_seletividade": alimentacao_seletividade,
