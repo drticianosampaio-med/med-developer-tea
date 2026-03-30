@@ -5,7 +5,7 @@
 # Data: 30 de março de 2026
 # 
 
-from datetime import date, datetime
+from datetime import date
 from typing import Tuple, List
 import re
 
@@ -41,42 +41,6 @@ def validar_cpf(cpf: str) -> Tuple[bool, str]:
         return False, "CPF inválido"
     
     return True, "CPF válido"
-
-# 
-# VALIDAÇÃO DE EMAIL
-# 
-
-def validar_email(email: str) -> bool:
-    """Valida formato de email"""
-    padrao = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(padrao, email) is not None
-
-# 
-# VALIDAÇÃO DE TELEFONE
-# 
-
-def validar_telefone(telefone: str) -> bool:
-    """Valida telefone brasileiro"""
-    telefone = re.sub(r'\D', '', telefone)
-    return len(telefone) == 11 and telefone[0] in ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-
-# 
-# VALIDAÇÃO DE CEP
-# 
-
-def validar_cep(cep: str) -> bool:
-    """Valida CEP brasileiro"""
-    cep = re.sub(r'\D', '', cep)
-    return len(cep) == 8
-
-# 
-# VALIDAÇÃO DE CRM
-# 
-
-def validar_crm(crm: str) -> bool:
-    """Valida CRM"""
-    crm = re.sub(r'\D', '', crm)
-    return 4 <= len(crm) <= 6
 
 # 
 # GERAR ID DO PACIENTE
