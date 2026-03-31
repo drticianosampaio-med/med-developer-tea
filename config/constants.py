@@ -32,6 +32,14 @@ FOOTER_COPYRIGHT = "© 2026 Dr. Ticiano Sampaio. Todos os direitos reservados."
 FOOTER_VERSAO = "v1.0 — Sistema de Triagem TEA | 31 de março de 2026"
 
 # 
+# SUPABASE STORAGE
+# 
+
+STORAGE_BUCKET_NAME = "relatorios-tea"
+SUPABASE_URL = "https://seu-projeto.supabase.co"
+SUPABASE_KEY = "sua-chave-publica"
+
+# 
 # OPÇÕES DE FORMULÁRIO
 # 
 
