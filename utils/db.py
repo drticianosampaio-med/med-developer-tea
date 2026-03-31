@@ -16,13 +16,25 @@ from supabase import create_client, Client
 # 
 
 def inicializar_supabase() -> Client:
-    """Inicializa cliente Supabase com credenciais de st.secrets"""
+    """Inicializa cliente Supabase com credenciais de st.secrets ou variáveis de ambiente"""
     try:
-        supabase_url = st.secrets["supabase_url"]
-        supabase_key = st.secrets["supabase_key"]
+        # Tentar st.secrets primeiro (desenvolvimento local)
+        try:
+            supabase_url = st.secrets["supabase_url"]
+            supabase_key = st.secrets["supabase_key"]
+        except (KeyError, FileNotFoundError):
+            # Fallback para variáveis de ambiente (Railway)
+            import os
+            supabase_url = os.getenv("SUPABASE_URL")
+            supabase_key = os.getenv("SUPABASE_KEY")
+        
+        if not supabase_url or not supabase_key:
+            st.error("❌ Credenciais Supabase não configuradas")
+            return None
+        
         return create_client(supabase_url, supabase_key)
     except Exception as e:
-        st.error(f"Erro ao conectar ao Supabase: {e}")
+        st.error(f"❌ Erro ao conectar ao Supabase: {e}")
         return None
 
 supabase = inicializar_supabase()
