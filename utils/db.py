@@ -1,98 +1,131 @@
-# ============================================
+# 
 # utils/db.py
-# Operações Supabase
+# Funções de Banco de Dados
 # Sistema de Triagem Canabinoide TEA
-# Data: 29 de março de 2026
-# ============================================
+# Data: 31 de março de 2026
+# 
 
-import os
-from typing import Tuple, Optional, Dict
-from datetime import date
 import streamlit as st
+from datetime import datetime, date
+from typing import Tuple
+import json
 from supabase import create_client, Client
-from config.constants import (
-    STORAGE_BUCKET_NAME,
-    CAMPOS_OBRIGATORIOS_BASELINE,
-    MENSAGENS
-)
-from config.security import obter_instancia_criptografia
 
-# ============================================
-# FUNÇÃO HELPER — OBTER VARIÁVEIS DE AMBIENTE
-# ============================================
+# 
+# INICIALIZAÇÃO SUPABASE
+# 
 
-def obter_variavel_ambiente(chave: str, fallback_secrets: bool = True) -> Optional[str]:
-    """
-    Tenta obter o valor de uma variável de ambiente.
-    Se não encontrada e fallback_secrets for True, tenta obter de st.secrets.
-    
-    Args:
-        chave: Nome da variável de ambiente
-        fallback_secrets: Se True, tenta st.secrets como fallback
-        
-    Returns:
-        Valor da variável ou None se não encontrada
-    """
-    valor = os.getenv(chave)
-    if not valor and fallback_secrets:
-        valor = st.secrets.get(chave)
-    return valor
-
-# ============================================
-# CLIENTE SUPABASE
-# ============================================
-
-def obter_cliente_supabase() -> Optional[Client]:
-    """Obtém ou cria instância do cliente Supabase"""
-    if "supabase_cliente" in st.session_state:
-        return st.session_state.supabase_cliente
+def inicializar_supabase() -> Client:
+    """Inicializa cliente Supabase com credenciais de st.secrets"""
     try:
-        supabase_url = obter_variavel_ambiente("SUPABASE_URL")
-        supabase_key = obter_variavel_ambiente("SUPABASE_KEY")
-        if not supabase_url or not supabase_key:
-            raise ValueError("SUPABASE_URL e SUPABASE_KEY não configuradas")
-        cliente = create_client(supabase_url, supabase_key)
-        st.session_state.supabase_cliente = cliente
-        return cliente
+        supabase_url = st.secrets["supabase_url"]
+        supabase_key = st.secrets["supabase_key"]
+        return create_client(supabase_url, supabase_key)
     except Exception as e:
-        st.error(f"❌ Erro ao conectar com Supabase: {str(e)}")
+        st.error(f"Erro ao conectar ao Supabase: {e}")
         return None
 
-# ============================================
-# REGISTRAR BASELINE TEA
-# ============================================
+supabase = inicializar_supabase()
 
-def registrar_baseline_tea(dados: Dict) -> Tuple[bool, str, Optional[str]]:
-    """Registra triagem inicial no Supabase"""
+# 
+# TESTAR CONEXÃO
+# 
+
+def testar_conexao_supabase() -> Tuple[bool, str]:
+    """Testa conexão com Supabase"""
     try:
-        cliente = obter_cliente_supabase()
-        if not cliente:
-            return False, MENSAGENS["erro_banco"], None
+        if supabase is None:
+            return False, "Supabase não inicializado"
         
-        # Valida campos obrigatórios
-        campos_faltantes = []
-        for campo in CAMPOS_OBRIGATORIOS_BASELINE:
-            if campo not in dados or not dados[campo]:
-                campos_faltantes.append(campo)
-        if campos_faltantes:
-            return False, f"Campos obrigatórios faltando: {', '.join(campos_faltantes)}", None
+        # Tenta uma query simples
+        resultado = supabase.table("baseline_tea").select("id").limit(1).execute()
+        return True, "Conexão com Supabase OK"
+    except Exception as e:
+        return False, f"Erro na conexão: {str(e)}"
+
+# 
+# REGISTRAR BASELINE TEA
+# 
+
+def registrar_baseline_tea(dados: dict) -> Tuple[bool, str, str]:
+    """
+    Registra dados de triagem inicial no Supabase
+    
+    Args:
+        dados: Dicionário com todos os campos do formulário
+    
+    Returns:
+        (sucesso, mensagem, id_registro)
+    """
+    try:
+        if supabase is None:
+            return False, "Supabase não inicializado", None
         
-        # Prepara dados
-        dados_insert = {k: v for k, v in dados.items() if v is not None}
+        # Preparar dados para inserção
+        dados_inserir = {
+            "paciente_id": dados.get("paciente_id"),
+            "nome_paciente": dados.get("nome_paciente"),
+            "cpf_paciente": dados.get("cpf_paciente"),
+            "data_nascimento": dados.get("data_nascimento"),
+            "cuidador_nome": dados.get("cuidador_nome"),
+            "cuidador_parentesco": dados.get("cuidador_parentesco"),
+            "cuidador_profissao": dados.get("cuidador_profissao"),
+            "residencia": dados.get("residencia"),
+            "queixa_principal": dados.get("queixa_principal"),
+            "idade_diagnostico_tea": dados.get("idade_diagnostico_tea"),
+            "nivel_suporte": dados.get("nivel_suporte"),
+            "profissional_diagnostico": json.dumps(dados.get("profissional_diagnostico", [])),
+            "outros_diagnosticos": dados.get("outros_diagnosticos"),
+            "historico_gestacao": dados.get("historico_gestacao"),
+            "tipo_parto": dados.get("tipo_parto"),
+            "idade_gestacional": dados.get("idade_gestacional"),
+            "condicoes_nascer": dados.get("condicoes_nascer"),
+            "marco_cabeca": dados.get("marco_cabeca"),
+            "marco_locomocao": dados.get("marco_locomocao"),
+            "desenvolvimento_fala": dados.get("desenvolvimento_fala"),
+            "idade_primeiras_palavras": dados.get("idade_primeiras_palavras"),
+            "controle_esfincteriano": dados.get("controle_esfincteriano"),
+            "meltdowns_frequencia": dados.get("meltdowns_frequencia"),
+            "meltdowns_duracao": dados.get("meltdowns_duracao"),
+            "meltdowns_gatilhos": json.dumps(dados.get("meltdowns_gatilhos", [])),
+            "agressividade_autoagressao": dados.get("agressividade_autoagressao"),
+            "estereotipias": json.dumps(dados.get("estereotipias", [])),
+            "hipersensibilidade": dados.get("hipersensibilidade"),
+            "rigidez_cognitiva": dados.get("rigidez_cognitiva"),
+            "contato_visual": dados.get("contato_visual"),
+            "padrao_sono": dados.get("padrao_sono"),
+            "alimentacao_seletividade": dados.get("alimentacao_seletividade"),
+            "funcao_intestinal": dados.get("funcao_intestinal"),
+            "convulsoes_eeg": dados.get("convulsoes_eeg"),
+            "alergias": dados.get("alergias"),
+            "imunidade": dados.get("imunidade"),
+            "medicacoes_atuais": dados.get("medicacoes_atuais"),
+            "medicacoes_previas": dados.get("medicacoes_previas"),
+            "terapias_atuais": dados.get("terapias_atuais"),
+            "objetivo_terapia_canabinoide": dados.get("objetivo_terapia_canabinoide"),
+            "experiencia_cannabis_previa": dados.get("experiencia_cannabis_previa"),
+            "consentimento_assinado": dados.get("consentimento_assinado"),
+            "assinatura_responsavel": dados.get("assinatura_responsavel"),
+            "data_consentimento": dados.get("data_consentimento"),
+            "data_triagem": dados.get("data_triagem"),
+            "data_criacao": datetime.now().isoformat()
+        }
         
-        # Insere
-        resposta = cliente.table("baseline_tea").insert(dados_insert).execute()
+        # Inserir no Supabase
+        resposta = supabase.table("baseline_tea").insert(dados_inserir).execute()
+        
         if resposta.data:
-            paciente_id = dados.get("paciente_id")
-            return True, MENSAGENS["sucesso_triagem"], paciente_id
+            id_registro = resposta.data[0].get("id") if resposta.data else None
+            return True, "✅ Triagem registrada com sucesso!", id_registro
         else:
             return False, "Erro ao registrar triagem", None
+    
     except Exception as e:
         return False, f"Erro ao registrar: {str(e)}", None
 
-# ============================================
-# UPLOAD DE RELATÓRIO CRIPTOGRAFADO
-# ============================================
+# 
+# FAZER UPLOAD DE RELATÓRIO
+# 
 
 def fazer_upload_relatorio_criptografado(
     arquivo_bytes: bytes,
@@ -101,72 +134,58 @@ def fazer_upload_relatorio_criptografado(
     tipo_terapia: str,
     profissional_nome: str,
     profissional_registro: str,
-    data_relatorio: date
-) -> Tuple[bool, str, Optional[str]]:
-    """Faz upload de PDF criptografado para Storage"""
+    data_upload: date
+) -> Tuple[bool, str, str]:
+    """
+    Faz upload de relatório PDF criptografado para Supabase Storage
+    
+    Args:
+        arquivo_bytes: Conteúdo do arquivo em bytes
+        arquivo_nome: Nome original do arquivo
+        paciente_id: ID do paciente (pseudo-anonimizado)
+        tipo_terapia: Tipo de terapia do relatório
+        profissional_nome: Nome do profissional
+        profissional_registro: Registro profissional
+        data_upload: Data do upload
+    
+    Returns:
+        (sucesso, mensagem, relatorio_id)
+    """
     try:
-        cliente = obter_cliente_supabase()
-        if not cliente:
-            return False, MENSAGENS["erro_banco"], None
+        if supabase is None:
+            return False, "Supabase não inicializado", None
         
-        # Criptografa
-        criptografia = obter_instancia_criptografia()
-        arquivo_criptografado = criptografia.criptografar_arquivo(arquivo_bytes)
-        
-        # Prepara nome
-        from datetime import datetime
+        # Gerar nome único para arquivo
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        arquivo_nome_storage = f"{paciente_id}/{tipo_terapia}_{timestamp}.pdf.enc"
+        arquivo_nome_unico = f"{paciente_id}_{timestamp}_{arquivo_nome}"
         
-        # Upload
-        resposta_upload = cliente.storage.from_(STORAGE_BUCKET_NAME).upload(
-            arquivo_nome_storage,
-            arquivo_criptografado,
-            {"content-type": "application/octet-stream"}
+        # Fazer upload para Storage
+        caminho_storage = f"relatorios-tea/{paciente_id}/{arquivo_nome_unico}"
+        
+        resposta_upload = supabase.storage.from_("relatorios-tea").upload(
+            caminho_storage,
+            arquivo_bytes
         )
-        if not resposta_upload:
-            return False, "Erro ao fazer upload do arquivo", None
         
-        # Registra metadados
-        metadados = {
+        # Registrar metadados no banco
+        dados_relatorio = {
             "paciente_id": paciente_id,
+            "arquivo_nome": arquivo_nome,
+            "arquivo_caminho": caminho_storage,
             "tipo_terapia": tipo_terapia,
-            "data_relatorio": data_relatorio.isoformat(),
             "profissional_nome": profissional_nome,
             "profissional_registro": profissional_registro,
-            "arquivo_nome": arquivo_nome,
-            "arquivo_criptografado": True,
-            "tamanho_bytes": len(arquivo_bytes)
+            "data_upload": data_upload.isoformat(),
+            "data_criacao": datetime.now().isoformat()
         }
-        resposta_metadata = cliente.table("relatorios_terapeuticos").insert(metadados).execute()
-        if resposta_metadata.data:
-            relatorio_id = resposta_metadata.data[0]["id"]
-            return True, MENSAGENS["sucesso_relatorio"], relatorio_id
+        
+        resposta_db = supabase.table("relatorios_tea").insert(dados_relatorio).execute()
+        
+        if resposta_db.data:
+            relatorio_id = resposta_db.data[0].get("id")
+            return True, "✅ Relatório enviado com sucesso!", relatorio_id
         else:
-            return False, "Erro ao registrar metadados", None
+            return False, "Erro ao registrar relatório", None
+    
     except Exception as e:
         return False, f"Erro ao fazer upload: {str(e)}", None
-
-# ============================================
-# TESTAR CONEXÃO SUPABASE
-# ============================================
-
-def testar_conexao_supabase() -> Tuple[bool, str]:
-    """Testa conexão com Supabase"""
-    try:
-        cliente = obter_cliente_supabase()
-        if not cliente:
-            return False, "Falha ao criar cliente Supabase"
-        
-        # Tenta fazer uma query simples
-        resposta = cliente.table("baseline_tea").select("id").limit(1).execute()
-        
-        # Verifica se a resposta contém dados (sucesso)
-        # APIResponse do Supabase v2.10.0 não tem status_code, apenas data
-        if resposta.data is not None:
-            return True, "✅ Conexão com Supabase funcionando"
-        else:
-            # Se data é None, significa que não conseguiu conectar
-            return False, "Erro na conexão com Supabase"
-    except Exception as e:
-        return False, f"Erro ao testar conexão: {str(e)}"
