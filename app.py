@@ -275,7 +275,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
             "Idade do diagnóstico de TEA (meses) *",
             min_value=0, max_value=1200, key="idade_diagnostico_tea"
         )
-         nivel_suporte = st.selectbox("Nível de Suporte *",
+    nivel_suporte = st.selectbox("Nível de Suporte *",
        options=[1, 2, 3],
        format_func=lambda x: NIVEL_SUPORTE_OPTIONS[x-1],
        key="nivel_suporte")
