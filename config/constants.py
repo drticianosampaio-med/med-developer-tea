@@ -1,7 +1,8 @@
 # 
 # config/constants.py
-# Constantes e Enumerações do Sistema
-# Data: 30 de março de 2026
+# Constantes e Configurações Globais
+# Sistema de Triagem Canabinoide TEA
+# Data: 31 de março de 2026
 # 
 
 # 
@@ -16,7 +17,7 @@ PAGE_CONFIG = {
 }
 
 # 
-# INFORMAÇÕES DO PROFISSIONAL
+# INFORMAÇÕES PROFISSIONAIS
 # 
 
 PROFISSIONAL_NOME = "Dr. Ticiano Sampaio"
@@ -28,48 +29,10 @@ PROFISSIONAL_ESPECIALIDADES = "Medicina de Família • Terapia Canabinoide"
 # 
 
 FOOTER_COPYRIGHT = "© 2026 Dr. Ticiano Sampaio. Todos os direitos reservados."
-FOOTER_VERSAO = "Versão 1.1 — Sistema de Triagem TEA com Terapia Canabinoide"
+FOOTER_VERSAO = "v1.0 — Sistema de Triagem TEA | 31 de março de 2026"
 
 # 
-# OPÇÕES DE FORMULÁRIO — PROFISSIONAL DIAGNÓSTICO
-# 
-
-PROFISSIONAIS_DIAGNOSTICO = [
-    "Neuropediatra",
-    "Psiquiatra",
-    "Pediatra com especialização em desenvolvimento",
-    "Psicólogo clínico",
-    "Fonoaudiólogo",
-    "Terapeuta ocupacional",
-    "Outro profissional legalmente habilitado"
-]
-
-# 
-# OPÇÕES DE FORMULÁRIO — TIPO DE PARTO
-# 
-
-TIPO_PARTO_OPTIONS = [
-    "Parto normal",
-    "Cesariana programada",
-    "Cesariana de urgência",
-    "Não informado"
-]
-
-# 
-# OPÇÕES DE FORMULÁRIO — DESENVOLVIMENTO FALA
-# 
-
-DESENVOLVIMENTO_FALA_OPTIONS = [
-    "Sem fala funcional",
-    "Palavras isoladas",
-    "Frases simples (2-3 palavras)",
-    "Frases complexas",
-    "Conversa fluente com dificuldades pragmáticas",
-    "Conversa fluente típica"
-]
-
-# 
-# OPÇÕES DE FORMULÁRIO — NÍVEL DE SUPORTE
+# OPÇÕES DE FORMULÁRIO
 # 
 
 NIVEL_SUPORTE_OPTIONS = [
@@ -78,20 +41,29 @@ NIVEL_SUPORTE_OPTIONS = [
     "Nível 3 — Suporte muito substancial necessário"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — FREQUÊNCIA MELTDOWNS
-# 
-
-FREQUENCIA_MELTDOWNS_OPTIONS = [
-    "Raramente (menos de 1x por semana)",
-    "Ocasionalmente (1-3x por semana)",
-    "Frequentemente (4-6x por semana)",
-    "Muito frequentemente (diariamente)"
+PROFISSIONAIS_DIAGNOSTICO = [
+    "Neuropediatra",
+    "Psiquiatra Infantil",
+    "Psicólogo Clínico",
+    "Médico Generalista",
+    "Fonoaudiólogo",
+    "Terapeuta Ocupacional",
+    "Outro profissional legalmente habilitado"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — DURAÇÃO MELTDOWNS
-# 
+TIPO_PARTO_OPTIONS = [
+    "Parto Normal",
+    "Cesárea Programada",
+    "Cesárea de Urgência",
+    "Não informado"
+]
+
+FREQUENCIA_MELTDOWNS_OPTIONS = [
+    "Diário",
+    "Semanal",
+    "Mensal",
+    "Raro"
+]
 
 DURACAO_MELTDOWNS_OPTIONS = [
     "Menos de 5 minutos",
@@ -100,159 +72,96 @@ DURACAO_MELTDOWNS_OPTIONS = [
     "Mais de 30 minutos"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — GATILHOS DE MELTDOWNS
-# 
+DESENVOLVIMENTO_FALA_OPTIONS = [
+    "Sem fala",
+    "Ecolalia",
+    "Palavras isoladas",
+    "Frases simples",
+    "Linguagem funcional",
+    "Linguagem fluente"
+]
 
 GATILHOS_MELTDOWNS = [
     "Mudanças de rotina",
-    "Barulhos altos/sensibilidade auditiva",
-    "Aglomerações/ambientes lotados",
-    "Transições entre atividades",
-    "Frustração/não conseguir o que quer",
-    "Contato físico não desejado",
+    "Estímulos sensoriais",
+    "Frustração",
+    "Transições",
+    "Ruído alto",
+    "Aglomeração",
     "Demandas sociais",
-    "Fadiga/cansaço",
-    "Fome/desconforto físico",
-    "Estímulos visuais intensos",
     "Outros"
 ]
-
-# 
-# OPÇÕES DE FORMULÁRIO — ESTEREOTIPIAS
-# 
 
 ESTEREOTIPIAS_OPTIONS = [
-    "Balanceio do corpo",
-    "Movimento repetitivo de mãos/dedos",
-    "Girar objetos",
+    "Movimento repetitivo de mãos",
+    "Balanceio corporal",
     "Alinhamento de objetos",
-    "Movimentos de dedos na frente dos olhos",
-    "Vocalizações repetitivas",
-    "Ecolalia (repetição de palavras/frases)",
-    "Interesse restrito em objetos específicos",
-    "Padrões de movimento repetitivos",
+    "Girar objetos",
+    "Vocalização repetitiva",
+    "Interesse restrito intenso",
     "Outros"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — PADRÃO DE SONO
-# 
-
 PADRAO_SONO_OPTIONS = [
-    "Dificuldade para adormecer",
-    "Despertares noturnos frequentes",
-    "Despertar muito cedo",
-    "Sono excessivo",
-    "Pesadelos/terrores noturnos",
-    "Sonambulismo",
-    "Padrão normal"
+    "Normal",
+    "Insônia inicial",
+    "Insônia de manutenção",
+    "Despertar precoce",
+    "Hipersonia",
+    "Pesadelos/terror noturno"
 ]
-
-# 
-# OPÇÕES DE FORMULÁRIO — ALIMENTAÇÃO
-# 
 
 ALIMENTACAO_SELETIVIDADE_OPTIONS = [
-    "Muito seletivo (poucos alimentos)",
+    "Não seletivo",
+    "Levemente seletivo",
     "Moderadamente seletivo",
-    "Pouco seletivo (come a maioria dos alimentos)",
-    "Não seletivo"
+    "Altamente seletivo",
+    "Muito restritivo"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — FUNÇÃO INTESTINAL
-# 
-
 FUNCAO_INTESTINAL_OPTIONS = [
+    "Normal",
     "Constipação",
     "Diarreia",
-    "Alternância constipação/diarreia",
-    "Normal",
+    "Alternância",
     "Incontinência fecal"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — IMUNIDADE
-# 
-
 IMUNIDADE_OPTIONS = [
-    "Infecções frequentes",
-    "Infecções ocasionais",
-    "Sem infecções recentes",
+    "Normal",
+    "Imunodeficiência",
+    "Infecções recorrentes",
+    "Alergia/Intolerância",
     "Não informado"
 ]
-
-# 
-# OPÇÕES DE FORMULÁRIO — EXPERIÊNCIA CANNABIS
-# 
 
 EXPERIENCIA_CANNABIS_OPTIONS = [
-    "Nenhuma experiência prévia",
-    "Experiência prévia com CBD isolado",
-    "Experiência prévia com THC:CBD",
-    "Experiência prévia com outros canabinoides",
+    "Nenhuma",
+    "Familiar próximo",
+    "Pessoal prévia",
     "Não informado"
 ]
 
-# 
-# OPÇÕES DE FORMULÁRIO — TERAPIA
-# 
-
 TERAPIA_OPTIONS = [
-    "Triagem Inicial",
-    "Monitoramento Semanal",
-    "Monitoramento Mensal",
-    "Avaliação de Escalas",
-    "Outro"
+    "Terapia Ocupacional",
+    "Fonoaudiologia",
+    "Psicologia",
+    "Neuropsicologia",
+    "Psicopedagogia",
+    "Outra"
 ]
 
 # 
-# MODALIDADES SENSORIAIS
-# 
-
-MODALIDADES_SENSORIAIS = [
-    "Auditiva",
-    "Tátil",
-    "Visual",
-    "Olfativa",
-    "Gustativa",
-    "Proprioceptiva",
-    "Vestibular"
-]
-
-# 
-# MENSAGENS DO SISTEMA
+# MENSAGENS DE VALIDAÇÃO
 # 
 
 MENSAGENS = {
-    "sucesso_triagem": "✅ Triagem registrada com sucesso!",
-    "sucesso_relatorio": "✅ Relatório enviado com sucesso!",
-    "erro_banco": "❌ Erro ao conectar com banco de dados",
-    "erro_validacao": "❌ Erro de validação",
-    "campo_obrigatorio": "Este campo é obrigatório"
+    "cpf_invalido": "CPF inválido. Verifique o número digitado.",
+    "campo_obrigatorio": "Este campo é obrigatório.",
+    "data_futura": "A data não pode ser no futuro.",
+    "idade_invalida": "Idade inválida.",
+    "profissional_obrigatorio": "Selecione pelo menos um profissional que fez o diagnóstico.",
+    "gatilhos_obrigatorio": "Selecione pelo menos um gatilho de meltdowns.",
+    "estereotipias_obrigatorio": "Selecione pelo menos uma estereotipia.",
+    "consentimento_obrigatorio": "Consentimento e assinatura são obrigatórios.",
 }
-
-# 
-# STORAGE
-# 
-
-STORAGE_BUCKET_NAME = "relatorios_terapeuticos"
-
-# 
-# CAMPOS OBRIGATÓRIOS — BASELINE TEA
-# 
-
-CAMPOS_OBRIGATORIOS_BASELINE = [
-    "nome_paciente",
-    "cpf_paciente",
-    "data_nascimento",
-    "cuidador_nome",
-    "cuidador_parentesco",
-    "queixa_principal",
-    "idade_diagnostico_tea",
-    "nivel_suporte",
-    "profissional_diagnostico",
-    "objetivo_terapia_canabinoide",
-    "consentimento_assinado"
-]

@@ -1,8 +1,10 @@
 # 
-# app.py — VERSÃO CORRIGIDA (FASE 1)
+# app.py — VERSÃO CORRIGIDA E ATUALIZADA (FASE 1)
 # Interface Principal do Sistema de Triagem Canabinoide TEA
-# Data: 31 de março de 2026
-# Correções: Indentação corrigida, lógica de consentimento/assinatura corrigida
+# Data: 30 de março de 2026
+# Correções: st.set_page_config, Profissional Diagnóstico (multiselect), Tipo Parto,
+#            Idades em meses, Gatilhos (multiselect), Estereotipias (multiselect),
+#            Hipersensibilidade (slider), Rigidez Cognitiva (slider).
 # 
 
 import streamlit as st
@@ -49,7 +51,7 @@ from utils.validation import (
 )
 
 # 
-# CONFIGURAÇÃO DA PÁGINA
+# CONFIGURAÇÃO DA PÁGINA — CRÍTICO: APENAS UMA CHAMADA E NO TOPO
 # 
 
 st.set_page_config(
@@ -60,7 +62,7 @@ st.set_page_config(
 )
 
 # 
-# CONFIGURAÇÃO DE LOCALIZAÇÃO
+# CONFIGURAÇÃO DE LOCALIZAÇÃO — FORMATO BRASILEIRO
 # 
 
 try:
@@ -87,6 +89,7 @@ MESES_PT = {
 }
 
 def formatar_data_br(data_obj):
+    """Formata data para português brasileiro"""
     if data_obj:
         data_formatada = data_obj.strftime('%d de %B de %Y')
         for mes_en, mes_pt in MESES_PT.items():
@@ -95,12 +98,13 @@ def formatar_data_br(data_obj):
     return None
 
 def converter_data_iso(data_obj):
+    """Converte date object para formato ISO"""
     if data_obj:
         return data_obj.isoformat()
     return None
 
 # 
-# CORES
+# CORES — Dark Green + Bege/Cinza
 # 
 
 CORES = {
@@ -118,7 +122,7 @@ CORES = {
 }
 
 # 
-# CSS
+# CSS MINIMALISTA
 # 
 
 st.markdown(f"""
@@ -269,16 +273,14 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     st.header("2️⃣ Motivo da Consulta e Diagnóstico")
     queixa_principal = st.text_area("Qual a queixa principal hoje? *", 
         key="queixa_principal", height=100)
-    
     col5, col6 = st.columns(2)
     with col5:
         idade_diagnostico_tea = st.number_input(
             "Idade do diagnóstico de TEA (meses) *",
-            key="idade_diagnostico_tea"
+            min_value=0, max_value=1200, key="idade_diagnostico_tea"
         )
         nivel_suporte = st.selectbox("Nível de Suporte *",
             options=NIVEL_SUPORTE_OPTIONS, key="nivel_suporte")
-    
     with col6:
         profissionais_selecionados = st.multiselect(
             "Profissional(is) que fez(fizeram) o diagnóstico *",
@@ -288,16 +290,12 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         outro_profissional = ""
         if "Outro profissional legalmente habilitado" in profissionais_selecionados:
             outro_profissional = st.text_input("Especifique o outro profissional", key="outro_profissional_diagnostico")
-    
-    col_tipo_outros = st.columns(2)
-    with col_tipo_outros[0]:
+        
         tipo_parto = st.selectbox("Tipo de Parto",
             options=TIPO_PARTO_OPTIONS, key="tipo_parto")
-    
-    with col_tipo_outros[1]:
+
         outros_diagnosticos = st.text_area("Outros diagnósticos?",
             key="outros_diagnosticos", height=100)
-    
     st.divider()
 
     # SEÇÃO 3: HISTÓRICO GESTACIONAL
@@ -331,7 +329,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         controle_esfincteriano = st.text_input("Controle esfincteriano (idade em meses)", key="controle_esfincteriano")
     st.divider()
 
-    # SEÇÃO 5: PERFIL SENSORIAL E COMPORTAMENTAL
+    # SEÇÃO 5: PERFIL SENSORIAL
     st.header("5️⃣ Perfil Sensorial e Comportamental")
     col13, col14 = st.columns(2)
     with col13:
@@ -359,12 +357,20 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         if "Outros" in estereotipias_selecionadas:
             outras_estereotipias = st.text_input("Especifique outras estereotipias", key="outras_estereotipias_stimming")
     
-    hipersensibilidade = st.text_area("Hipersensibilidade / Hipossensibilidade",
-        key="hipersensibilidade", height=100)
+    hipersensibilidade_hipossensibilidade = st.slider(
+        "Hipersensibilidade / Hipossensibilidade",
+        min_value=0, max_value=4, value=2, step=1,
+        format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
+        key="hipersensibilidade_hipossensibilidade_slider"
+    )
     col15, col16 = st.columns(2)
     with col15:
-        rigidez_cognitiva = st.text_area("Rigidez Cognitiva",
-            key="rigidez_cognitiva", height=100)
+        rigidez_cognitiva_grau = st.slider(
+            "Rigidez Cognitiva",
+            min_value=0, max_value=4, value=2, step=1,
+            format_func=lambda x: ["Nenhuma", "Leve", "Moderada", "Intensa", "Muito Intensa"][x],
+            key="rigidez_cognitiva_slider"
+        )
     with col16:
         contato_visual = st.text_area("Contato Visual e Interação Social",
             key="contato_visual", height=100)
@@ -430,7 +436,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
             arquivo_bytes = None
     st.divider()
 
-    # SEÇÃO 11: CONSENTIMENTO — INDENTAÇÃO CORRIGIDA
+    # SEÇÃO 11: CONSENTIMENTO
     st.header("1️⃣1️⃣ Consentimento Informado")
     st.write("""
     **Termos de Consentimento e Privacidade**
@@ -443,7 +449,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     """)
     consentimento_assinado = st.checkbox("Eu li e concordo com os termos de consentimento *",
         key="consentimento_assinado")
-    assinatura_responsavel = ""
+    assinatura_responsavel = None
     data_consentimento = None
     if consentimento_assinado:
         assinatura_responsavel = st.text_input("Assinatura do Responsável (nome completo) *",
@@ -501,8 +507,8 @@ if botao_enviar:
         "meltdowns_gatilhos": meltdowns_gatilhos_final_processado,
         "agressividade_autoagressao": agressividade_autoagressao,
         "estereotipias": estereotipias_final_processado,
-        "hipersensibilidade": hipersensibilidade,
-        "rigidez_cognitiva": rigidez_cognitiva,
+        "hipersensibilidade": hipersensibilidade_hipossensibilidade,
+        "rigidez_cognitiva": rigidez_cognitiva_grau,
         "contato_visual": contato_visual,
         "padrao_sono": ", ".join(padrao_sono),
         "alimentacao_seletividade": alimentacao_seletividade,
@@ -551,7 +557,7 @@ if botao_enviar:
         st.error(f"❌ {msg_estereotipias}")
         st.stop()
 
-    if not consentimento_assinado or not assinatura_responsavel.strip():
+    if not consentimento_assinado or not assinatura_responsavel:
         st.error("❌ Consentimento e assinatura são obrigatórios")
         st.stop()
 
