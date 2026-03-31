@@ -269,16 +269,16 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     st.header("2️⃣ Motivo da Consulta e Diagnóstico")
     queixa_principal = st.text_area("Qual a queixa principal hoje? *", 
         key="queixa_principal", height=100)
+    
     col5, col6 = st.columns(2)
     with col5:
         idade_diagnostico_tea = st.number_input(
             "Idade do diagnóstico de TEA (meses) *",
-            min_value=0, max_value=1200, key="idade_diagnostico_tea"
+            key="idade_diagnostico_tea"
         )
-    nivel_suporte = st.selectbox("Nível de Suporte *",
-       options=[1, 2, 3],
-       format_func=lambda x: NIVEL_SUPORTE_OPTIONS[x-1],
-       key="nivel_suporte")
+        nivel_suporte = st.selectbox("Nível de Suporte *",
+            options=NIVEL_SUPORTE_OPTIONS, key="nivel_suporte")
+    
     with col6:
         profissionais_selecionados = st.multiselect(
             "Profissional(is) que fez(fizeram) o diagnóstico *",
@@ -288,12 +288,16 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         outro_profissional = ""
         if "Outro profissional legalmente habilitado" in profissionais_selecionados:
             outro_profissional = st.text_input("Especifique o outro profissional", key="outro_profissional_diagnostico")
-        
+    
+    col_tipo_outros = st.columns(2)
+    with col_tipo_outros[0]:
         tipo_parto = st.selectbox("Tipo de Parto",
             options=TIPO_PARTO_OPTIONS, key="tipo_parto")
-
+    
+    with col_tipo_outros[1]:
         outros_diagnosticos = st.text_area("Outros diagnósticos?",
             key="outros_diagnosticos", height=100)
+    
     st.divider()
 
     # SEÇÃO 3: HISTÓRICO GESTACIONAL
