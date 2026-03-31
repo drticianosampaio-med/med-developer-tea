@@ -55,7 +55,7 @@ O sistema está passando por melhorias técnicas para garantir maior estabilidad
 Agradecemos pela compreensão e paciência.
 """)
 
-st.info("📞 Para urgências clínicas, ligue: (85) 9 9200-3813")
+st.info("📞 Para dúvidas, use os contatos ao lado")
 
 st.divider()
 st.caption("Atualização em andamento | 31 de março de 2026")
