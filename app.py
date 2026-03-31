@@ -1,9 +1,8 @@
 # 
 # app.py — VERSÃO CORRIGIDA (FASE 1)
 # Interface Principal do Sistema de Triagem Canabinoide TEA
-# Data: 30 de março de 2026
-# Correções: Remoção de sliders para Hipersensibilidade e Rigidez Cognitiva,
-#            restaurando campos de texto originais.
+# Data: 31 de março de 2026
+# Correções: Indentação corrigida, lógica de consentimento/assinatura corrigida
 # 
 
 import streamlit as st
@@ -50,7 +49,7 @@ from utils.validation import (
 )
 
 # 
-# CONFIGURAÇÃO DA PÁGINA — CRÍTICO: APENAS UMA CHAMADA E NO TOPO
+# CONFIGURAÇÃO DA PÁGINA
 # 
 
 st.set_page_config(
@@ -61,7 +60,7 @@ st.set_page_config(
 )
 
 # 
-# CONFIGURAÇÃO DE LOCALIZAÇÃO — FORMATO BRASILEIRO
+# CONFIGURAÇÃO DE LOCALIZAÇÃO
 # 
 
 try:
@@ -88,7 +87,6 @@ MESES_PT = {
 }
 
 def formatar_data_br(data_obj):
-    """Formata data para português brasileiro"""
     if data_obj:
         data_formatada = data_obj.strftime('%d de %B de %Y')
         for mes_en, mes_pt in MESES_PT.items():
@@ -97,13 +95,12 @@ def formatar_data_br(data_obj):
     return None
 
 def converter_data_iso(data_obj):
-    """Converte date object para formato ISO"""
     if data_obj:
         return data_obj.isoformat()
     return None
 
 # 
-# CORES — Dark Green + Bege/Cinza
+# CORES
 # 
 
 CORES = {
@@ -121,7 +118,7 @@ CORES = {
 }
 
 # 
-# CSS MINIMALISTA
+# CSS
 # 
 
 st.markdown(f"""
@@ -328,7 +325,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         controle_esfincteriano = st.text_input("Controle esfincteriano (idade em meses)", key="controle_esfincteriano")
     st.divider()
 
-    # SEÇÃO 5: PERFIL SENSORIAL E COMPORTAMENTAL — CORRIGIDO (SEM SLIDERS)
+    # SEÇÃO 5: PERFIL SENSORIAL E COMPORTAMENTAL
     st.header("5️⃣ Perfil Sensorial e Comportamental")
     col13, col14 = st.columns(2)
     with col13:
@@ -356,7 +353,6 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
         if "Outros" in estereotipias_selecionadas:
             outras_estereotipias = st.text_input("Especifique outras estereotipias", key="outras_estereotipias_stimming")
     
-    # CAMPOS DE TEXTO RESTAURADOS
     hipersensibilidade = st.text_area("Hipersensibilidade / Hipossensibilidade",
         key="hipersensibilidade", height=100)
     col15, col16 = st.columns(2)
@@ -428,7 +424,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
             arquivo_bytes = None
     st.divider()
 
-    # SEÇÃO 11: CONSENTIMENTO
+    # SEÇÃO 11: CONSENTIMENTO — INDENTAÇÃO CORRIGIDA
     st.header("1️⃣1️⃣ Consentimento Informado")
     st.write("""
     **Termos de Consentimento e Privacidade**
@@ -439,7 +435,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     4. **Acesso Restrito**: Apenas profissionais autorizados terão acesso aos dados clínicos.
     5. **Direitos**: Você tem direito a acessar, corrigir ou solicitar a exclusão de seus dados a qualquer momento.
     """)
-            consentimento_assinado = st.checkbox("Eu li e concordo com os termos de consentimento *",
+    consentimento_assinado = st.checkbox("Eu li e concordo com os termos de consentimento *",
         key="consentimento_assinado")
     assinatura_responsavel = ""
     data_consentimento = None
@@ -549,7 +545,7 @@ if botao_enviar:
         st.error(f"❌ {msg_estereotipias}")
         st.stop()
 
-       if not consentimento_assinado or not assinatura_responsavel.strip():
+    if not consentimento_assinado or not assinatura_responsavel.strip():
         st.error("❌ Consentimento e assinatura são obrigatórios")
         st.stop()
 
