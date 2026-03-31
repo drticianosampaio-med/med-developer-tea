@@ -439,7 +439,7 @@ with st.form(key="formulario_triagem", clear_on_submit=False):
     4. **Acesso Restrito**: Apenas profissionais autorizados terão acesso aos dados clínicos.
     5. **Direitos**: Você tem direito a acessar, corrigir ou solicitar a exclusão de seus dados a qualquer momento.
     """)
-        consentimento_assinado = st.checkbox("Eu li e concordo com os termos de consentimento *",
+            consentimento_assinado = st.checkbox("Eu li e concordo com os termos de consentimento *",
         key="consentimento_assinado")
     assinatura_responsavel = ""
     data_consentimento = None
@@ -549,7 +549,7 @@ if botao_enviar:
         st.error(f"❌ {msg_estereotipias}")
         st.stop()
 
-    if not consentimento_assinado or not assinatura_responsavel:
+       if not consentimento_assinado or not assinatura_responsavel.strip():
         st.error("❌ Consentimento e assinatura são obrigatórios")
         st.stop()
 
