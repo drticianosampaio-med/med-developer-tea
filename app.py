@@ -241,8 +241,8 @@ st.divider()
 
 with st.form(key="formulario_triagem", clear_on_submit=False):
     # SEÇÃO 1: IDENTIFICAÇÃO
-st.header("1️⃣ Identificação do Paciente e Cuidadores")
-col1, col2 = st.columns(2)
+    st.header("1️⃣ Identificação do Paciente e Cuidadores")
+    col1, col2 = st.columns(2)
 with col1:
     nome_paciente = st.text_input("Nome do Paciente *", key="nome_paciente")
     cpf_paciente = st.text_input("CPF do Paciente *", key="cpf_paciente", placeholder="000.000.000-00")
@@ -257,7 +257,7 @@ with col2:
     if data_nascimento:
         idade = calcular_idade(data_nascimento)
         st.write(f"Idade atual: **{idade} anos**")
-col3, col4 = st.columns(2)
+    col3, col4 = st.columns(2)
 with col3:
     cuidador_nome = st.text_input("Nome do Cuidador Principal *", key="cuidador_nome")
     cuidador_parentesco = st.selectbox("Grau de Parentesco *", 
@@ -266,7 +266,7 @@ with col3:
 with col4:
     cuidador_profissao = st.text_input("Profissão do Cuidador", key="cuidador_profissao")
     residencia = st.text_area("Com quem a criança reside?", key="residencia", height=100)
-st.divider()
+    st.divider()
 
     # SEÇÃO 2: MOTIVO DA CONSULTA (LAYOUT CORRIGIDO)
     st.header("2️⃣ Motivo da Consulta e Diagnóstico")
